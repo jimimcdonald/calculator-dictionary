@@ -1,8 +1,9 @@
-
+import datetime
 import pandas
 import requests
 from bs4 import BeautifulSoup
 
+starttime = datetime.datetime.now()
 
 letters = ["i", "z", "e", "h", "s", "g", "l", "b", "o"]
 letterDict = {"i":1, "z":2, "e":3, "h":4, "s":5, "g":6, "l":7, "b":8, "o":0}
@@ -19,7 +20,7 @@ def loadWords():
     '''Loads and sorts word list'''
 
     wordlist=[]
-    inFile = open("testwords.txt", 'r')
+    inFile = open("words.txt", 'r')
 
     for line in inFile:
         line = line.replace('\n','')
@@ -29,7 +30,7 @@ def loadWords():
 
     wordlist.sort()
     print(wordlist)
-    print("  ", len(wordlist), "words loaded.")
+    print(len(wordlist), "words loaded.")
 
     return wordlist
 
@@ -71,8 +72,6 @@ def getDefiniations(calcwordlist):
         except:
             print(word, "is not a word")
 
-    print(realwordlist, definitionlist)
-
     return realwordlist
 
 
@@ -87,8 +86,6 @@ def getNumbers(realwordlist):
             backnumber = digit + backnumber
 
         backnumberlist.append(backnumber)
-
-    print(backnumberlist)
 
     return backnumberlist
 
@@ -164,7 +161,6 @@ def getSums(backnumberlist):
 
         sumslist.append(", ".join(sums))
 
-    print(sumslist)
     return sumslist
 
 
@@ -185,18 +181,23 @@ def makeDataFrame():
 
 def makeFiles(df):
 
+    endtime=datetime.datetime.now()
 
     '''generates Excel file'''
-    writer = pandas.ExcelWriter('CalcDict_excel.xlsx')
+    writer = pandas.ExcelWriter("CalcDict_excel"+str(endtime)+".xlsx")
     df.to_excel(writer, 'Calculator Dictionary')
     writer.save()
 
     '''generates html file'''
-    html_results = open("CalcDict_html.html", "w")
+    html_results = open("CalcDict_html"+str(endtime)+".html", "w")
     html_results.write("<table>\n  <tr>\n    <th>Word</th>\n    <th>Calculator</th>\n    <th>Number</th>\n    <th>Definition</th>\n    <th>Sums</th>\n  </tr>\n")
     for i in range (len(realwordlist)):
         html_results.write("  <tr>\n    <td>"+str(realwordlist[i]).capitalize()+"</td>\n    <td><p3>"+str(realwordlist[i])+"</p3></td>\n    <td>"+str(backnumberlist[i])+"</td>\n    <td>"+str(definitionlist[i])+"</td>\n    <td>"+str(sumslist[i])+"</td>\n  </tr>\n")
     html_results.write("</table>")
     html_results.close()
+
+    print('Started at', starttime)
+    print('Finished at', endtime)
+    print('Running time:', endtime - starttime)
 
 makeFiles(makeDataFrame())
