@@ -1,6 +1,7 @@
 import datetime
 import pandas
 import requests
+import sqlite3
 from bs4 import BeautifulSoup
 
 starttime = datetime.datetime.now()
@@ -184,17 +185,24 @@ def makeFiles(df):
     endtime=datetime.datetime.now()
 
     '''generates Excel file'''
-    writer = pandas.ExcelWriter("CalcDict_excel"+str(endtime)+".xlsx")
+    writer = pandas.ExcelWriter("CalcDict_excel_"+endtime.strftime("%Y-%m-%d %H:%M:%S")+".xlsx")
     df.to_excel(writer, 'Calculator Dictionary')
     writer.save()
 
     '''generates html file'''
-    html_results = open("CalcDict_html"+str(endtime)+".html", "w")
+    html_results = open("CalcDict_html_"+endtime.strftime("%Y-%m-%d %H:%M:%S")+".html", "w")
     html_results.write("<table>\n  <tr>\n    <th>Word</th>\n    <th>Calculator</th>\n    <th>Number</th>\n    <th>Definition</th>\n    <th>Sums</th>\n  </tr>\n")
     for i in range (len(realwordlist)):
         html_results.write("  <tr>\n    <td>"+str(realwordlist[i]).capitalize()+"</td>\n    <td><p3>"+str(realwordlist[i])+"</p3></td>\n    <td>"+str(backnumberlist[i])+"</td>\n    <td>"+str(definitionlist[i])+"</td>\n    <td>"+str(sumslist[i])+"</td>\n  </tr>\n")
     html_results.write("</table>")
     html_results.close()
+
+    '''generates db file'''
+    conn = sqlite3.connect("CalcDict_database_"+endtime.strftime("%Y-%m-%d %H:%M:%S")+".db")
+    df.to_sql('CalcDict', conn)
+    conn.commit()
+    print(pandas.read_sql('select * from CalcDict', conn))
+    conn.close()
 
     print('Started at', starttime)
     print('Finished at', endtime)
