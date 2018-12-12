@@ -201,7 +201,6 @@ def makeFiles(df):
     conn = sqlite3.connect("CalcDict_database_"+endtime.strftime("%Y-%m-%d %H:%M:%S")+".db")
     df.to_sql('CalcDict', conn)
     conn.commit()
-    print(pandas.read_sql('select * from CalcDict', conn))
     conn.close()
 
     print('Started at', starttime)
